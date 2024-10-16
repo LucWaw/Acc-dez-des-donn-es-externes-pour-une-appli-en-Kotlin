@@ -43,6 +43,18 @@ dependencies {
   kapt("com.google.dagger:hilt-android-compiler:2.44")
 
   runtimeOnly("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
+
+  // Moshi JSON Library
+  implementation("com.squareup.moshi:moshi-kotlin:1.15.1")
+
+
+  // Retrofit for Network Requests
+  implementation("com.squareup.retrofit2:retrofit:2.11.0")
+  implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+  implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+
+
 
   implementation("androidx.core:core-ktx:1.9.0")
   implementation("androidx.appcompat:appcompat:1.6.1")
