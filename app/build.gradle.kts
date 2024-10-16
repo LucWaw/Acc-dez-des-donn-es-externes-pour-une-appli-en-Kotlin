@@ -7,12 +7,12 @@ plugins {
 
 android {
   namespace = "com.aura"
-  compileSdk = 33
+  compileSdk = 34
 
   defaultConfig {
     applicationId = "com.aura"
     minSdk = 24
-    targetSdk = 33
+    targetSdk = 34
     versionCode = 1
     versionName = "1.0"
 
@@ -41,6 +41,8 @@ dependencies {
 
   implementation("com.google.dagger:hilt-android:2.44")
   kapt("com.google.dagger:hilt-android-compiler:2.44")
+
+  runtimeOnly("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
 
   implementation("androidx.core:core-ktx:1.9.0")
   implementation("androidx.appcompat:appcompat:1.6.1")
