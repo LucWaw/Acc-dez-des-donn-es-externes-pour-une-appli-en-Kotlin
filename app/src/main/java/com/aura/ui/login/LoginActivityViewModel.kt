@@ -18,15 +18,15 @@ import javax.inject.Inject
 class LoginActivityViewModel @Inject constructor(private val userRepository: UserRepository) :
     ViewModel() {
 
-    private val _uiState = MutableStateFlow(LoginUiState())
-    val uiState: StateFlow<LoginUiState> get() = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(LoginBusinessState())
+    val uiState: StateFlow<LoginBusinessState> get() = _uiState.asStateFlow()
 
     fun validateLogin(userName: String, password: String) {
         _uiState.update { currentState ->
             if (userName.isNotEmpty() && password.isNotEmpty()) {
-                currentState.copy(isCheckReady = true)
+                currentState.copy(loginUIState = LoginUIState(true))
             } else {
-                currentState.copy(isCheckReady = false)
+                currentState.copy(loginUIState = LoginUIState(false))
             }
         }
     }
@@ -39,33 +39,51 @@ class LoginActivityViewModel @Inject constructor(private val userRepository: Use
                         login = GrantResponse(false),
                         isViewLoading = false,
                         errorMessage = result.message,
-                        isCheckReady = true
+                        loginUIState = LoginUIState(true)
                     )
                 }
 
                 Result.Loading -> _uiState.update { currentState ->
                     currentState.copy(
                         isViewLoading = true,
-                        errorMessage = null, isCheckReady = false
+                        errorMessage = null,
+                        loginUIState = LoginUIState(false)
                     )
                 }
 
-                is Result.Success -> _uiState.update { currentState ->
-                    currentState.copy(
-                        login = result.value,
-                        isViewLoading = false,
-                        errorMessage = null,
-                        isCheckReady = false
-                    )
+                is Result.Success -> {
+                    if (result.value.isGranted) {
+                        apiSuccessAndDataVerified()
+                    } else {
+                        apiSucessButBadData()
+                    }
+
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            login = result.value,
+                            errorMessage = "Invalid credentials",
+                            isViewLoading = false
+                            )
+                    }
                 }
             }
         }.launchIn(viewModelScope)
     }
+
+    private fun apiSucessButBadData(){
+        _uiState.update { currentState ->
+            currentState.copy(
+                loginUIState = LoginUIState(true)
+            )
+        }
+    }
+
+    private fun apiSuccessAndDataVerified(){
+        _uiState.update { currentState ->
+            currentState.copy(
+                loginUIState = LoginUIState(false)
+            )
+        }
+    }
 }
 
-data class LoginUiState(
-    val isCheckReady: Boolean = false,
-    val login: GrantResponse = GrantResponse(false),
-    val isViewLoading: Boolean = false,
-    val errorMessage: String? = null
-)

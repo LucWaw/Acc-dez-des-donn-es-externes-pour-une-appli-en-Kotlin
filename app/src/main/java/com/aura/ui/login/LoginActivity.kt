@@ -39,7 +39,7 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 loginViewModel.uiState.collect { isValid ->
-                    binding.login.isEnabled = isValid.isCheckReady
+                    binding.login.isEnabled = isValid.loginUIState.isCheckReady
                 }
             }
         }
@@ -50,22 +50,7 @@ class LoginActivity : AppCompatActivity() {
             )
             lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    loginViewModel.uiState.collect {
-                        if (it.login.isGranted) {
-                            binding.loading.visibility = View.VISIBLE
-
-                            val intent = Intent(this@LoginActivity, HomeActivity::class.java)
-                            startActivity(intent)
-
-                            finish()
-                        } else if (it.isViewLoading) {
-                            binding.loading.visibility = View.VISIBLE
-                        } else if (it.errorMessage?.isNotBlank() == true){
-                            binding.loading.visibility = View.GONE
-                            Snackbar.make(binding.root, it.errorMessage, Snackbar.LENGTH_LONG)
-                                .show()
-                        }
-                    }
+                    updateUiAfterLoginTry()
                 }
             }
         }
@@ -80,6 +65,27 @@ class LoginActivity : AppCompatActivity() {
         }
 
 
+    }
+
+    private suspend fun updateUiAfterLoginTry() {
+        loginViewModel.uiState.collect {
+            if (it.login.isGranted) {
+                binding.loading.visibility = View.VISIBLE
+
+                val intent = Intent(this@LoginActivity, HomeActivity::class.java)
+                startActivity(intent)
+
+                finish()
+            } else if (it.isViewLoading) {
+                binding.loading.visibility = View.VISIBLE
+                binding.login.isEnabled = false
+            } else if (it.errorMessage?.isNotBlank() == true) {
+                binding.login.isEnabled = true
+                binding.loading.visibility = View.GONE
+                Snackbar.make(binding.root, it.errorMessage, Snackbar.LENGTH_LONG)
+                    .show()
+            }
+        }
     }
 
 
