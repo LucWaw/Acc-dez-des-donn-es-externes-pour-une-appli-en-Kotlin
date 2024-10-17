@@ -1,7 +1,9 @@
 package com.aura.ui.login
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.aura.R
 import com.aura.data.repository.Result
 import com.aura.data.repository.UserRepository
 import com.aura.domain.model.GrantResponse
@@ -20,6 +22,8 @@ class LoginActivityViewModel @Inject constructor(private val userRepository: Use
 
     private val _uiState = MutableStateFlow(LoginBusinessState())
     val uiState: StateFlow<LoginBusinessState> get() = _uiState.asStateFlow()
+
+    var errorLabel: MutableLiveData<Int> = MutableLiveData<Int>()
 
     fun validateLogin(userName: String, password: String) {
         _uiState.update { currentState ->
@@ -57,12 +61,13 @@ class LoginActivityViewModel @Inject constructor(private val userRepository: Use
                     } else {
                         apiSucessButBadData()
                     }
+                    errorLabel.value = R.string.invalid_credentials
 
                     _uiState.update { currentState ->
                         currentState.copy(
                             login = result.value,
-                            errorMessage = "Invalid credentials",
-                            isViewLoading = false
+                            isViewLoading = false,
+                            errorMessage = "Not translated placeholder"
                             )
                     }
                 }

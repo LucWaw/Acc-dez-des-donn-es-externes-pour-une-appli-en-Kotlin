@@ -1,19 +1,29 @@
 package com.aura.ui.login
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.aura.databinding.ActivityLoginBinding
 import com.aura.ui.home.HomeActivity
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+
+
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "userData")
+
 
 /**
  * The login activity for the app.
@@ -72,6 +82,11 @@ class LoginActivity : AppCompatActivity() {
             if (it.login.isGranted) {
                 binding.loading.visibility = View.VISIBLE
 
+                val userNameCounter = stringPreferencesKey("Username")
+                this.dataStore.edit { userData ->
+                    userData[userNameCounter] = binding.identifier.text.toString()
+                }
+
                 val intent = Intent(this@LoginActivity, HomeActivity::class.java)
                 startActivity(intent)
 
@@ -82,8 +97,14 @@ class LoginActivity : AppCompatActivity() {
             } else if (it.errorMessage?.isNotBlank() == true) {
                 binding.login.isEnabled = true
                 binding.loading.visibility = View.GONE
-                Snackbar.make(binding.root, it.errorMessage, Snackbar.LENGTH_LONG)
-                    .show()
+                if (it.errorMessage == "Not translated placeholder" && loginViewModel.errorLabel.value != null){
+                    Toast.makeText(this, getString(loginViewModel.errorLabel.value!!), Toast.LENGTH_LONG).show()
+                    binding.password.setText("")
+                }else{
+                    Toast.makeText(this, it.errorMessage, Toast.LENGTH_LONG).show()
+                }
+
+
             }
         }
     }
