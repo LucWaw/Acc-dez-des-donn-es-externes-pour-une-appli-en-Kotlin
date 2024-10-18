@@ -69,7 +69,7 @@ class LoginActivity : AppCompatActivity() {
 
         }
 
-// Ajouter des listeners pour les modifications de texte
+        // Ajouter des listeners pour les modifications de texte
         binding.identifier.doOnTextChanged { text, _, _, _ ->
             loginViewModel.validateLogin(text.toString(), binding.password.text.toString())
         }

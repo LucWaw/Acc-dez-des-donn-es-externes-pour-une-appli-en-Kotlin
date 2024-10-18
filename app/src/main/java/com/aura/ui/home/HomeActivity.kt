@@ -121,7 +121,7 @@ class HomeActivity : AppCompatActivity() {
                 for (account in state.accounts){
                     if(account.main) {
                         val formattedBalance = NumberFormat.getNumberInstance(Locale.FRANCE).format(account.balance)
-                        binding.balance.text = "$formattedBalance €"
+                        binding.balance.text = getString(R.string.balance_amount, formattedBalance)
                     }
                 }
             }

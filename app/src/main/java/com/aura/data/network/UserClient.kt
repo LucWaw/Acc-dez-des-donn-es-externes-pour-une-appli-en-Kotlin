@@ -1,8 +1,10 @@
 package com.aura.data.network
 
+import com.aura.data.call.TransferInfo
 import com.aura.data.call.UserInfo
 import com.aura.data.response.AccountsResponseItem
 import com.aura.data.response.LoginResponse
+import com.aura.data.response.TransferResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -19,4 +21,9 @@ interface UserClient {
     suspend fun getAccounts(
         @Path("id") userId: String
     ):Response<List<AccountsResponseItem>>
+
+    @POST("/transfer")
+    suspend fun pushTransfer(
+        @Body transferInfo: TransferInfo
+    ):Response<TransferResponse>
 }
