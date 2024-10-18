@@ -3,15 +3,11 @@ package com.aura.ui.transfer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.aura.data.repository.Result
 import com.aura.data.repository.UserRepository
-import com.aura.domain.model.GrantResponseModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
@@ -20,7 +16,7 @@ class TransferActivityViewModel @Inject constructor(private val userRepository: 
     ViewModel() {
 
     // Dans le ViewModel, remplacer le StateFlow par LiveData
-    private val _uiBusinessState = MutableLiveData<TransferBusinessState>(TransferBusinessState())
+    private val _uiBusinessState = MutableLiveData(TransferBusinessState())
     val uiBusinessState: LiveData<TransferBusinessState> get() = _uiBusinessState
 
 
