@@ -3,6 +3,7 @@ package com.aura.ui.login
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +17,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.aura.R
 import com.aura.databinding.ActivityLoginBinding
 import com.aura.ui.home.HomeActivity
 import dagger.hilt.android.AndroidEntryPoint
@@ -49,20 +51,22 @@ class LoginActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 loginViewModel.uiState.collect { isValid ->
-                    binding.login.isEnabled = isValid.loginUIState.isCheckReady
+                    binding.login.isEnabled = isValid.isCheckReady
                 }
             }
         }
 
         binding.login.setOnClickListener {
-            loginViewModel.pushConnexionData(
-                binding.identifier.text.toString(), binding.password.text.toString()
-            )
+
             lifecycleScope.launch {
-                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                loginViewModel.pushConnexionData(
+                    binding.identifier.text.toString(), binding.password.text.toString()
+                ).collect{
                     updateUiAfterLoginTry()
                 }
             }
+
+
         }
 
 // Ajouter des listeners pour les modifications de texte
@@ -77,37 +81,50 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
-    private suspend fun updateUiAfterLoginTry() {
-        loginViewModel.uiState.collect {
-            if (it.login.isGranted) {
+    private fun updateUiAfterLoginTry() {
+        // Obtenir l'état actuel du LiveData
+        val state = loginViewModel.uiBusinessState.value ?: return
+
+        // Mettre à jour l'interface utilisateur en fonction de l'état actuel
+        when {
+            state.isViewLoading -> {
                 binding.loading.visibility = View.VISIBLE
+                binding.login.isEnabled = false
+                Log.d("Lucas", "Loading...")
+            }
+            state.errorMessage?.isNotBlank() == true -> {
+                binding.loading.visibility = View.GONE
+                binding.login.isEnabled = true
+                Log.d("Lucas", "Error: ${state.errorMessage}")
+                Toast.makeText(this, state.errorMessage, Toast.LENGTH_LONG).show()
+            }
+            state.login.isGranted -> {
+                Log.d("Lucas", "Login successful")
+                binding.loading.visibility = View.GONE
+                binding.login.isEnabled = true
 
                 val userNameCounter = stringPreferencesKey("Username")
-                this.dataStore.edit { userData ->
-                    userData[userNameCounter] = binding.identifier.text.toString()
+                lifecycleScope.launch {
+                    dataStore.edit { userData ->
+                        userData[userNameCounter] = binding.identifier.text.toString()
+                    }
                 }
 
                 val intent = Intent(this@LoginActivity, HomeActivity::class.java)
                 startActivity(intent)
-
                 finish()
-            } else if (it.isViewLoading) {
-                binding.loading.visibility = View.VISIBLE
-                binding.login.isEnabled = false
-            } else if (it.errorMessage?.isNotBlank() == true) {
-                binding.login.isEnabled = true
+            }
+            else -> {
                 binding.loading.visibility = View.GONE
-                if (it.errorMessage == "Not translated placeholder" && loginViewModel.errorLabel.value != null){
-                    Toast.makeText(this, getString(loginViewModel.errorLabel.value!!), Toast.LENGTH_LONG).show()
-                    binding.password.setText("")
-                }else{
-                    Toast.makeText(this, it.errorMessage, Toast.LENGTH_LONG).show()
-                }
-
-
+                binding.login.isEnabled = true
+                Toast.makeText(this, getString(R.string.invalid_credentials), Toast.LENGTH_LONG).show()
+                binding.password.setText("")
+                Log.d("Lucas", "Invalid credentials")
             }
         }
     }
+
+
 
 
     private fun setUpViewModel() {
