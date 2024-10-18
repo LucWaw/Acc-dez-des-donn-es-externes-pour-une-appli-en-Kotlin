@@ -13,4 +13,5 @@
   <string name="prompt_amount">Montant</string>
   <string name="action_transfer">Faire le virement</string>
   <string name="invalid_credentials">"Informations d\'identification non valides !"</string>
+    <string name="retry_button">Réessayer</string>
 </resources>

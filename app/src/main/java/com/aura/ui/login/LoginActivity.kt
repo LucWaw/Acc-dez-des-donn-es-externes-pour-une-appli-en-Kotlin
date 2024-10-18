@@ -90,16 +90,13 @@ class LoginActivity : AppCompatActivity() {
             state.isViewLoading -> {
                 binding.loading.visibility = View.VISIBLE
                 binding.login.isEnabled = false
-                Log.d("Lucas", "Loading...")
             }
             state.errorMessage?.isNotBlank() == true -> {
                 binding.loading.visibility = View.GONE
                 binding.login.isEnabled = true
-                Log.d("Lucas", "Error: ${state.errorMessage}")
                 Toast.makeText(this, state.errorMessage, Toast.LENGTH_LONG).show()
             }
             state.login.isGranted -> {
-                Log.d("Lucas", "Login successful")
                 binding.loading.visibility = View.GONE
                 binding.login.isEnabled = true
 
@@ -118,7 +115,6 @@ class LoginActivity : AppCompatActivity() {
                 binding.loading.visibility = View.GONE
                 binding.login.isEnabled = true
                 Toast.makeText(this, getString(R.string.invalid_credentials), Toast.LENGTH_LONG).show()
-                Log.d("Lucas", "Invalid credentials")
             }
         }
     }

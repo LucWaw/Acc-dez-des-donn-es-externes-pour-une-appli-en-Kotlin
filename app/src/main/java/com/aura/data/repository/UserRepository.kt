@@ -2,6 +2,7 @@ package com.aura.data.repository
 
 import com.aura.data.call.UserInfo
 import com.aura.data.network.UserClient
+import com.aura.data.response.toDomainModel
 import com.aura.domain.model.AccountResponseModel
 import com.aura.domain.model.GrantResponseModel
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +31,7 @@ class UserRepository(private val dataClient: UserClient) {
             val result = dataClient.getAccounts(
                 userId = userName
             )
-            val model = result.body()?.toDomainModel() ?: throw Exception("Invalid data")
+            val model = toDomainModel(result.body()?: throw Exception("Invalid data"))
             emit(Result.Success(model))
         }.catch { error ->
             emit(Result.Failure(error.message))

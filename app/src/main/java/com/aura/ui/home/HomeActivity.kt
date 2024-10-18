@@ -2,9 +2,11 @@ package com.aura.ui.home
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -23,6 +25,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.text.NumberFormat
+import java.util.Locale
 
 /**
  * The home activity for the app.
@@ -51,24 +55,9 @@ class HomeActivity : AppCompatActivity() {
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val balance = binding.balance
         val transfer = binding.transfer
 
-        val userNameCounter = stringPreferencesKey("Username")
-
-        val exampleCounterFlow: Flow<String> = this.dataStore.data
-            .map { preferences ->
-                // No type safety.
-                preferences[userNameCounter] ?: ""
-            }
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                exampleCounterFlow.collect{
-                    homeViewModel.pushConnexionData(it)
-                    updateUiWithBalance()
-                }
-            }
-        }
+        getDataOfUser()
 
 
         transfer.setOnClickListener {
@@ -87,17 +76,65 @@ class HomeActivity : AppCompatActivity() {
             }
         }
 
+        binding.retry.setOnClickListener {
+            getDataOfUser()
+        }
+
         // Ajouter le callback à l'onBackPressedDispatcher
         onBackPressedDispatcher.addCallback(this, callback)
     }
 
-    private suspend fun updateUiWithBalance() {
-        homeViewModel.uiBusinessState.collect {
-            if (it.isViewLoading){
-                binding.loading.visibility = View.VISIBLE
+    private fun getDataOfUser() {
+        val userNameCounter = stringPreferencesKey("Username")
+
+        val exampleCounterFlow: Flow<String> = this.dataStore.data
+            .map { preferences ->
+                // No type safety.
+                preferences[userNameCounter] ?: ""
+            }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                exampleCounterFlow.collect {
+                    homeViewModel.pushConnexionData(it)
+                        .collect {
+                            updateUiAfterAccountTry()
+                        }
+                }
             }
         }
     }
+
+    private fun updateUiAfterAccountTry() {
+        // Obtenir l'état actuel du LiveData
+        val state = homeViewModel.homeBusinessState.value ?: return
+
+        // Mettre à jour l'interface utilisateur en fonction de l'état actuel
+        when {
+            state.isViewLoading -> {
+                binding.loading.visibility = View.VISIBLE
+                binding.retry.visibility = View.GONE
+            }
+            state.accounts.isNotEmpty() -> {
+                binding.loading.visibility = View.GONE
+                binding.retry.visibility = View.GONE
+
+                for (account in state.accounts){
+                    if(account.main) {
+                        val formattedBalance = NumberFormat.getNumberInstance(Locale.FRANCE).format(account.balance)
+                        binding.balance.text = "$formattedBalance €"
+                    }
+                }
+            }
+            state.errorMessage?.isNotBlank() == true -> {
+                binding.loading.visibility = View.GONE
+                binding.retry.visibility = View.VISIBLE
+                Toast.makeText(this, state.errorMessage, Toast.LENGTH_LONG).show()
+            }
+        }
+    }
+
+
+
 
     private fun setUpViewModel() {
         homeViewModel = ViewModelProvider(this)[HomeActivityViewModel::class.java]

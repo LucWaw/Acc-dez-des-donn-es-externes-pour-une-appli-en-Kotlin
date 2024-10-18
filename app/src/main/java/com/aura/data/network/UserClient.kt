@@ -1,7 +1,7 @@
 package com.aura.data.network
 
 import com.aura.data.call.UserInfo
-import com.aura.data.response.AccountsResponse
+import com.aura.data.response.AccountsResponseItem
 import com.aura.data.response.LoginResponse
 import retrofit2.Response
 import retrofit2.http.Body
@@ -18,5 +18,5 @@ interface UserClient {
     @GET("/accounts/{id}")
     suspend fun getAccounts(
         @Path("id") userId: String
-    ):Response<AccountsResponse>
+    ):Response<List<AccountsResponseItem>>
 }
