@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
   id("com.android.application")
   id("org.jetbrains.kotlin.android")
@@ -17,6 +19,19 @@ android {
     versionName = "1.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+    //load the values from .properties file
+    val keystoreFile = project.rootProject.file("apiurl.properties")
+    val properties = Properties()
+    properties.load(keystoreFile.inputStream())
+
+    val apiKey = properties.getProperty("IP_V4") ?: "10.0.2.2"
+
+    buildConfigField(
+      type = "String",
+      name = "ipv4",
+      value = "\"$apiKey\""
+    )
   }
 
   buildTypes {
@@ -34,6 +49,7 @@ android {
   }
   buildFeatures {
     viewBinding = true
+    buildConfig = true
   }
 }
 

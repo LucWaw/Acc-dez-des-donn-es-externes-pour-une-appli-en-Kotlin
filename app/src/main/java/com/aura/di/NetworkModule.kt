@@ -1,5 +1,6 @@
 package com.openclassrooms.stellarforecast.di
 
+import com.aura.BuildConfig
 import com.aura.data.network.UserClient
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -23,8 +24,10 @@ object NetworkModule {
     @Singleton
     @Provides
     fun provideRetrofit(): Retrofit {
+        val apiKey = BuildConfig.ipv4
+        val url = "http://$apiKey:8080"
         return Retrofit.Builder()
-            .baseUrl("http://10.0.2.2:8080")
+            .baseUrl(url)
             .addConverterFactory(
                 MoshiConverterFactory.create(
                     Moshi.Builder().add(KotlinJsonAdapterFactory()).build()

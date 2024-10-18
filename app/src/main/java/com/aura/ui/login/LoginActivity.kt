@@ -118,7 +118,6 @@ class LoginActivity : AppCompatActivity() {
                 binding.loading.visibility = View.GONE
                 binding.login.isEnabled = true
                 Toast.makeText(this, getString(R.string.invalid_credentials), Toast.LENGTH_LONG).show()
-                binding.password.setText("")
                 Log.d("Lucas", "Invalid credentials")
             }
         }
