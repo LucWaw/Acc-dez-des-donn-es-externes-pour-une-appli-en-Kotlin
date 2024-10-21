@@ -78,7 +78,15 @@ dependencies {
   implementation("com.google.android.material:material:1.8.0")
   implementation("androidx.annotation:annotation:1.6.0")
   implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-  testImplementation("junit:junit:4.13.2")
+
+  testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.0")
+  testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.0")
+
+  testImplementation("org.mockito:mockito-junit-jupiter:5.14.1")
+  testImplementation("org.mockito:mockito-core:5.14.1")
+  testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+
   androidTestImplementation("androidx.test.ext:junit:1.1.5")
   androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 }
@@ -86,4 +94,8 @@ dependencies {
 // Allow references to generated code
 kapt {
   correctErrorTypes = true
+}
+
+tasks.withType<Test> {
+  useJUnitPlatform()
 }
