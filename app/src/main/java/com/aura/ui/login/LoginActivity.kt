@@ -79,6 +79,11 @@ class LoginActivity : AppCompatActivity() {
 
     }
 
+    /**
+     * Update UI based on BusinessState.
+     * Should be launch after a push.
+     * Update Loading Error and Sucess State depending of the user connexion.
+     */
     private fun updateUiAfterLoginTry() {
         val state = loginViewModel.uiBusinessState.value
 

@@ -102,6 +102,11 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Update UI based on BusinessState.
+     * Should be launch after a get.
+     * Update Loading Error and Sucess State depending of the user amount get try.
+     */
     private fun updateUiAfterAccountTry() {
         val state = homeViewModel.homeBusinessState.value
 
