@@ -45,7 +45,7 @@ class UserRepository(private val dataClient: UserClient) {
             val result = dataClient.pushTransfer(
                 TransferInfo(sender, recipient, amount)
             )
-            val model = result.body()?.toDomainModel() ?: throw Exception("Invalid data")
+            val model = result.body()?.toDomainModel() ?: throw Exception("Recipient Name Invalid")
             emit(Result.Success(model))
         }.catch { error ->
             emit(Result.Failure(error.message))

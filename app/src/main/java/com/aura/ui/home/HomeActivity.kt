@@ -85,14 +85,15 @@ class HomeActivity : AppCompatActivity() {
     private fun getDataOfUser() {
         val userNameCounter = stringPreferencesKey("Username")
 
-        val exampleCounterFlow: Flow<String> = this.dataStore.data
+        val idCounterFlow: Flow<String> = this.dataStore.data
             .map { preferences ->
                 // No type safety.
                 preferences[userNameCounter] ?: ""
             }
+
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                exampleCounterFlow.collect {
+                idCounterFlow.collect {
                     homeViewModel.pushConnexionData(it)
                         .collect {
                             updateUiAfterAccountTry()

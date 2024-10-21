@@ -58,10 +58,12 @@ class LoginActivity : AppCompatActivity() {
         binding.login.setOnClickListener {
 
             lifecycleScope.launch {
-                loginViewModel.pushConnexionData(
-                    binding.identifier.text.toString(), binding.password.text.toString()
-                ).collect{
-                    updateUiAfterLoginTry()
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    loginViewModel.pushConnexionData(
+                        binding.identifier.text.toString(), binding.password.text.toString()
+                    ).collect {
+                        updateUiAfterLoginTry()
+                    }
                 }
             }
 

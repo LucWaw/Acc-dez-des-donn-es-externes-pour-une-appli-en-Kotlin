@@ -1,16 +1,24 @@
 package com.aura.ui.transfer
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.doOnTextChanged
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.aura.R
 import com.aura.databinding.ActivityTransferBinding
+import com.aura.ui.home.HomeActivity
+import com.aura.ui.login.dataStore
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 /**
@@ -51,6 +59,30 @@ class TransferActivity : AppCompatActivity() {
                 }
             }
         }
+        val userNameCounter = stringPreferencesKey("Username")
+
+        val idCounterFlow: Flow<String> = this.dataStore.data
+            .map { preferences ->
+                // No type safety.
+                preferences[userNameCounter] ?: ""
+            }
+
+        binding.transfer.setOnClickListener {
+
+            lifecycleScope.launch {
+                repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    idCounterFlow.collect {
+                        transferViewModel.pushTransferData(it, binding.recipient.text.toString(), binding.amount.text.toString().toDouble())
+                            .collect {
+                                updateUiAfterTransferTry()
+                            }
+                    }
+                }
+            }
+
+
+        }
+
         // Ajouter des listeners pour les modifications de texte
         binding.recipient.doOnTextChanged { text, _, _, _ ->
             transferViewModel.validateLogin(text.toString(), binding.amount.text.toString())
@@ -61,6 +93,41 @@ class TransferActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Update UI based on BusinessState.
+     * Should be launch after a push.
+     * Update Loading Error and Sucess State depending of the transfer result.
+     */
+    private fun updateUiAfterTransferTry() {
+        val state = transferViewModel.uiBusinessState.value
+
+        when {
+            state.isViewLoading -> {
+                binding.loading.visibility = View.VISIBLE
+                binding.transfer.isEnabled = false
+            }
+            state.errorMessage?.isNotBlank() == true -> {
+                binding.loading.visibility = View.GONE
+                binding.transfer.isEnabled = true
+                Toast.makeText(this, state.errorMessage, Toast.LENGTH_LONG).show()
+            }
+            state.transfer.result -> {
+                binding.loading.visibility = View.GONE
+                binding.transfer.isEnabled = true
+
+
+
+                val intent = Intent(this@TransferActivity, HomeActivity::class.java)
+                startActivity(intent)
+                finish()
+            }
+            else -> {
+                binding.loading.visibility = View.GONE
+                binding.transfer.isEnabled = true
+                Toast.makeText(this, getString(R.string.invalid_transfer), Toast.LENGTH_LONG).show()
+            }
+        }
+    }
 
 
     private fun setUpViewModel() {
