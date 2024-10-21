@@ -2,7 +2,6 @@ package com.aura.ui.home
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -71,7 +70,6 @@ class HomeActivity : AppCompatActivity() {
 
         val callback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                // Terminer l'application
                 finish()
             }
         }
@@ -105,10 +103,8 @@ class HomeActivity : AppCompatActivity() {
     }
 
     private fun updateUiAfterAccountTry() {
-        // Obtenir l'état actuel du LiveData
-        val state = homeViewModel.homeBusinessState.value ?: return
+        val state = homeViewModel.homeBusinessState.value
 
-        // Mettre à jour l'interface utilisateur en fonction de l'état actuel
         when {
             state.isViewLoading -> {
                 binding.loading.visibility = View.VISIBLE

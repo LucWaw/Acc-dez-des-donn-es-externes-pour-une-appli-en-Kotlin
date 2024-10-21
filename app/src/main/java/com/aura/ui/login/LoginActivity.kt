@@ -3,7 +3,6 @@ package com.aura.ui.login
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -69,7 +68,6 @@ class LoginActivity : AppCompatActivity() {
 
         }
 
-        // Ajouter des listeners pour les modifications de texte
         binding.identifier.doOnTextChanged { text, _, _, _ ->
             loginViewModel.validateLogin(text.toString(), binding.password.text.toString())
         }
@@ -82,10 +80,8 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun updateUiAfterLoginTry() {
-        // Obtenir l'état actuel du LiveData
-        val state = loginViewModel.uiBusinessState.value ?: return
+        val state = loginViewModel.uiBusinessState.value
 
-        // Mettre à jour l'interface utilisateur en fonction de l'état actuel
         when {
             state.isViewLoading -> {
                 binding.loading.visibility = View.VISIBLE

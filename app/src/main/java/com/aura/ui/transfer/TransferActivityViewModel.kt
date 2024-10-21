@@ -1,7 +1,5 @@
 package com.aura.ui.transfer
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.aura.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,8 +14,8 @@ class TransferActivityViewModel @Inject constructor(private val userRepository: 
     ViewModel() {
 
     // Dans le ViewModel, remplacer le StateFlow par LiveData
-    private val _uiBusinessState = MutableLiveData(TransferBusinessState())
-    val uiBusinessState: LiveData<TransferBusinessState> get() = _uiBusinessState
+    private val _uiBusinessState = MutableStateFlow(TransferBusinessState())
+    val uiBusinessState: StateFlow<TransferBusinessState> get() = _uiBusinessState.asStateFlow()
 
 
     private val _uiState = MutableStateFlow(TransferUIState())
@@ -39,14 +37,14 @@ class TransferActivityViewModel @Inject constructor(private val userRepository: 
         return userRepository.callUserVerification(userName, password).onEach { result ->
             when (result) {
                 is Result.Loading -> {
-                    _uiBusinessState.value = _uiBusinessState.value?.copy(
+                    _uiBusinessState.value = _uiBusinessState.value.copy(
                         isViewLoading = true,
                         errorMessage = null,
                         isCheckReadyByApiCall = false
                     )
                 }
                 is Result.Failure -> {
-                    _uiBusinessState.value = _uiBusinessState.value?.copy(
+                    _uiBusinessState.value = _uiBusinessState.value.copy(
                         login = GrantResponseModel(false),
                         isViewLoading = false,
                         errorMessage = result.message,
@@ -54,7 +52,7 @@ class TransferActivityViewModel @Inject constructor(private val userRepository: 
                     )
                 }
                 is Result.Success -> {
-                    _uiBusinessState.value = _uiBusinessState.value?.copy(
+                    _uiBusinessState.value = _uiBusinessState.value.copy(
                         login = result.value,
                         isViewLoading = false,
                         errorMessage = null,
