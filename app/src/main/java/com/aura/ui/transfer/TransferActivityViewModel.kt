@@ -40,34 +40,36 @@ class TransferActivityViewModel @Inject constructor(private val userRepository: 
      * Try to transfer then update State with emit
      * Use copy instead of update because no race condition can append on a single call
      *
-     * @param userName the identifier of the user
-     * @param password the password Of the user
+     * @param sender the identifier of the user
+     * @param recipient the password Of the user
+     * @param amount The amount of money to transfer
      */
     fun pushTransferData(sender: String, recipient : String, amount: Double): Flow<Result<TransferResponseModel>> {
         return userRepository.askForTransfer(sender, recipient, amount).onEach { result ->
             when (result) {
                 is Result.Loading -> {
-                    _uiBusinessState.value = _uiBusinessState.value.copy(
+                    _uiBusinessState.update { previousState -> previousState.copy(
                         isViewLoading = true,
                         errorMessage = null,
                         isCheckReadyByApiCall = false
                     )
+                    }
                 }
                 is Result.Failure -> {
-                    _uiBusinessState.value = _uiBusinessState.value.copy(
+                    _uiBusinessState.update { previousState -> previousState.copy(
                         transfer = TransferResponseModel(false),
                         isViewLoading = false,
                         errorMessage = result.message,
                         isCheckReadyByApiCall = true
-                    )
+                    )}
                 }
                 is Result.Success -> {
-                    _uiBusinessState.value = _uiBusinessState.value.copy(
+                    _uiBusinessState.update { previousState -> previousState.copy(
                         transfer = result.value,
                         isViewLoading = false,
                         errorMessage = null,
                         isCheckReadyByApiCall = true
-                    )
+                    )}
                 }
             }
         }

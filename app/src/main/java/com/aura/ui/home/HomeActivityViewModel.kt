@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,26 +30,26 @@ class HomeActivityViewModel @Inject constructor(private val userRepository: User
         return userRepository.getUserAccounts(userName).onEach { result ->
             when (result) {
                 is Result.Failure -> {
-                    _homeBusinessState.value = _homeBusinessState.value.copy(
+                    _homeBusinessState.update { previousState -> previousState.copy(
                         errorMessage = result.message,
                         isViewLoading = false,
                         accounts = emptyList()
-                    )
+                    )}
                 }
 
                 is Result.Loading -> {
-                    _homeBusinessState.value = _homeBusinessState.value.copy(
+                    _homeBusinessState.update { previousState -> previousState.copy(
                         isViewLoading = true,
                         errorMessage = null
-                    )
+                    )}
                 }
 
                 is Result.Success -> {
-                    _homeBusinessState.value = _homeBusinessState.value.copy(
+                    _homeBusinessState.update { previousState -> previousState.copy(
                         accounts = result.value,
                         isViewLoading = false,
                         errorMessage = null
-                    )
+                    )}
                 }
             }
         }

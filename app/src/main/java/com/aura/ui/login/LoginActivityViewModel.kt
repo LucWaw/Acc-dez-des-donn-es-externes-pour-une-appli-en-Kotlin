@@ -52,27 +52,27 @@ class LoginActivityViewModel @Inject constructor(private val userRepository: Use
         return userRepository.callUserVerification(userName, password).onEach { result ->
             when (result) {
                 is Result.Loading -> {
-                    _uiBusinessState.value = _uiBusinessState.value.copy(
+                    _uiBusinessState.update { previousState -> previousState.copy(
                         isViewLoading = true,
                         errorMessage = null,
                         isCheckReadyByApiCall = false
-                    )
+                    )}
                 }
                 is Result.Failure -> {
-                    _uiBusinessState.value = _uiBusinessState.value.copy(
+                    _uiBusinessState.update { previousState -> previousState.copy(
                         login = GrantResponseModel(false),
                         isViewLoading = false,
                         errorMessage = result.message,
                         isCheckReadyByApiCall = true
-                    )
+                    )}
                 }
                 is Result.Success -> {
-                    _uiBusinessState.value = _uiBusinessState.value.copy(
+                    _uiBusinessState.update { previousState -> previousState.copy(
                         login = result.value,
                         isViewLoading = false,
                         errorMessage = null,
                         isCheckReadyByApiCall = true
-                    )
+                    )}
                 }
             }
         }
