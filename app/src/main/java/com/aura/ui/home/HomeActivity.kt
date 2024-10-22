@@ -115,10 +115,13 @@ class HomeActivity : AppCompatActivity() {
             state.isViewLoading -> {
                 binding.loading.visibility = View.VISIBLE
                 binding.retry.visibility = View.GONE
+                binding.balance.visibility = View.GONE
             }
             state.accounts.isNotEmpty() -> {
                 binding.loading.visibility = View.GONE
                 binding.retry.visibility = View.GONE
+                binding.balance.visibility = View.VISIBLE
+
 
                 for (account in state.accounts){
                     if(account.main) {
@@ -130,6 +133,7 @@ class HomeActivity : AppCompatActivity() {
             state.errorMessage?.isNotBlank() == true -> {
                 binding.loading.visibility = View.GONE
                 binding.retry.visibility = View.VISIBLE
+                binding.balance.visibility = View.GONE
                 Toast.makeText(this, state.errorMessage, Toast.LENGTH_LONG).show()
             }
         }
